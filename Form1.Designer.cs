@@ -169,6 +169,7 @@
             // 
             this.listViewEntries.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewEntries.Location = new System.Drawing.Point(0, 0);
+            this.listViewEntries.MultiSelect = false;
             this.listViewEntries.Name = "listViewEntries";
             this.listViewEntries.OwnerDraw = true;
             this.listViewEntries.Size = new System.Drawing.Size(621, 384);
@@ -186,6 +187,7 @@
             this.columnHeader3});
             this.lstProperties.Dock = System.Windows.Forms.DockStyle.Right;
             this.lstProperties.Location = new System.Drawing.Point(625, 0);
+            this.lstProperties.MultiSelect = false;
             this.lstProperties.Name = "lstProperties";
             this.lstProperties.Size = new System.Drawing.Size(288, 384);
             this.lstProperties.SmallImageList = this.imageList2;
@@ -209,6 +211,7 @@
             this.columnHeader1});
             this.lstCacheFiles.Dock = System.Windows.Forms.DockStyle.Top;
             this.lstCacheFiles.Location = new System.Drawing.Point(0, 0);
+            this.lstCacheFiles.MultiSelect = false;
             this.lstCacheFiles.Name = "lstCacheFiles";
             this.lstCacheFiles.Size = new System.Drawing.Size(913, 127);
             this.lstCacheFiles.SmallImageList = this.imageList2;
