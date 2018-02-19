@@ -32,10 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
-            this.listView1 = new ThumbCacheViewer.ListViewDblBuf();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.lstCacheFiles = new ThumbCacheViewer.ListViewDblBuf();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.imageList2 = new System.Windows.Forms.ImageList(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,6 +41,9 @@
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.listView1 = new ThumbCacheViewer.ListViewDblBuf();
+            this.lstCacheFiles = new ThumbCacheViewer.ListViewDblBuf();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -67,19 +67,6 @@
             this.panel1.Size = new System.Drawing.Size(676, 515);
             this.panel1.TabIndex = 0;
             // 
-            // listView1
-            // 
-            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView1.Location = new System.Drawing.Point(0, 131);
-            this.listView1.Name = "listView1";
-            this.listView1.OwnerDraw = true;
-            this.listView1.Size = new System.Drawing.Size(676, 384);
-            this.listView1.TabIndex = 1;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.VirtualMode = true;
-            this.listView1.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.listView1_DrawItem);
-            this.listView1.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.listView1_RetrieveVirtualItem);
-            // 
             // splitter1
             // 
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -88,25 +75,6 @@
             this.splitter1.Size = new System.Drawing.Size(676, 4);
             this.splitter1.TabIndex = 4;
             this.splitter1.TabStop = false;
-            // 
-            // lstCacheFiles
-            // 
-            this.lstCacheFiles.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
-            this.lstCacheFiles.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lstCacheFiles.Location = new System.Drawing.Point(0, 0);
-            this.lstCacheFiles.Name = "lstCacheFiles";
-            this.lstCacheFiles.Size = new System.Drawing.Size(676, 127);
-            this.lstCacheFiles.SmallImageList = this.imageList2;
-            this.lstCacheFiles.TabIndex = 0;
-            this.lstCacheFiles.UseCompatibleStateImageBehavior = false;
-            this.lstCacheFiles.View = System.Windows.Forms.View.Details;
-            this.lstCacheFiles.SelectedIndexChanged += new System.EventHandler(this.lstCacheFiles_SelectedIndexChanged);
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "Thumbnail caches found";
-            this.columnHeader1.Width = 480;
             // 
             // imageList2
             // 
@@ -148,7 +116,7 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -170,6 +138,38 @@
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // listView1
+            // 
+            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView1.Location = new System.Drawing.Point(0, 131);
+            this.listView1.Name = "listView1";
+            this.listView1.OwnerDraw = true;
+            this.listView1.Size = new System.Drawing.Size(676, 384);
+            this.listView1.TabIndex = 1;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.VirtualMode = true;
+            this.listView1.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.listView1_DrawItem);
+            this.listView1.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.listView1_RetrieveVirtualItem);
+            // 
+            // lstCacheFiles
+            // 
+            this.lstCacheFiles.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1});
+            this.lstCacheFiles.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lstCacheFiles.Location = new System.Drawing.Point(0, 0);
+            this.lstCacheFiles.Name = "lstCacheFiles";
+            this.lstCacheFiles.Size = new System.Drawing.Size(676, 127);
+            this.lstCacheFiles.SmallImageList = this.imageList2;
+            this.lstCacheFiles.TabIndex = 0;
+            this.lstCacheFiles.UseCompatibleStateImageBehavior = false;
+            this.lstCacheFiles.View = System.Windows.Forms.View.Details;
+            this.lstCacheFiles.SelectedIndexChanged += new System.EventHandler(this.lstCacheFiles_SelectedIndexChanged);
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Thumbnail caches found";
+            this.columnHeader1.Width = 600;
             // 
             // Form1
             // 

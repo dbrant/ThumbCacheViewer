@@ -35,17 +35,29 @@ namespace ThumbCacheViewer
         private Stream stream;
         private uint fileVersion;
 
-        private byte[] tempBytes;
+        private byte[] tempBytes = new byte[65536];
         private uint[] entryOffsets;
         
         public int ImageCount { get { return entryOffsets.Length; } }
 
-
         public ThumbCache(string fileName)
         {
-            tempBytes = new byte[65536];
             stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            ReadFromStream(stream);
+        }
 
+        public ThumbCache(Stream stream)
+        {
+            ReadFromStream(stream);
+        }
+
+        ~ThumbCache()
+        {
+            stream.Close();
+        }
+
+        private void ReadFromStream(Stream stream)
+        {
             stream.Read(tempBytes, 0, 32);
 
             string magic = Encoding.ASCII.GetString(tempBytes, 0, 4);
@@ -67,7 +79,7 @@ namespace ThumbCacheViewer
                 firstEntryPtr = BitConverter.ToUInt32(tempBytes, 16);
                 availableEntryPtr = BitConverter.ToUInt32(tempBytes, 20);
             }
-            
+
             stream.Seek(firstEntryPtr, SeekOrigin.Begin);
 
             List<uint> entryOffsetList = new List<uint>();
@@ -90,11 +102,6 @@ namespace ThumbCacheViewer
             catch { }
 
             entryOffsets = entryOffsetList.ToArray();
-        }
-        
-        ~ThumbCache()
-        {
-            stream.Close();
         }
         
         public Image GetImage(int imageIndex)
@@ -124,18 +131,7 @@ namespace ThumbCacheViewer
             img = new Bitmap(mstream);
             return img;
         }
-        
-        public void Read(string fileName)
-        {
-            using (var f = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                Read(f);
-            }
-        }
 
-        public void Read(Stream stream)
-        {
-        }
     }
 
 }

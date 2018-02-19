@@ -121,6 +121,8 @@ namespace ThumbCacheViewer
 
                 listView1.VirtualListSize = cache.ImageCount;
                 listView1.Invalidate();
+
+                this.Text = Application.ProductName + " - " + fileName;
             }
             catch (Exception ex)
             {
