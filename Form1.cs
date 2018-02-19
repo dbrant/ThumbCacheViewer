@@ -31,7 +31,8 @@ namespace ThumbCacheViewer
             InitializeComponent();
             FixDialogFont(this);
             FixWindowTheme(lstCacheFiles);
-            FixWindowTheme(listView1);
+            FixWindowTheme(listViewEntries);
+            FixWindowTheme(lstProperties);
             this.Text = Application.ProductName;
 
 
@@ -43,7 +44,7 @@ namespace ThumbCacheViewer
 
             foreach (var dbFile in dbFiles)
             {
-                lstCacheFiles.Items.Add(dbFile, "picture");
+                lstCacheFiles.Items.Add(dbFile, "pictures");
             }
         }
 
@@ -98,7 +99,7 @@ namespace ThumbCacheViewer
             {
                 cache = new ThumbCache(fileName);
 
-                listView1.LargeImageList = null;
+                listViewEntries.LargeImageList = null;
                 int w = 120;
                 for (int i = 0; i < 5; i++)
                 {
@@ -117,10 +118,10 @@ namespace ThumbCacheViewer
                 w += 16;
 
                 imageList1.ImageSize = new Size(w, w);
-                listView1.LargeImageList = imageList1;
+                listViewEntries.LargeImageList = imageList1;
 
-                listView1.VirtualListSize = cache.ImageCount;
-                listView1.Invalidate();
+                listViewEntries.VirtualListSize = cache.ImageCount;
+                listViewEntries.Invalidate();
 
                 this.Text = Application.ProductName + " - " + fileName;
             }
@@ -184,7 +185,23 @@ namespace ThumbCacheViewer
             e.Item = new ListViewItem();
         }
 
-        
+        private void listViewEntries_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listViewEntries.SelectedIndices.Count == 0)
+            {
+                return;
+            }
+            var dict = cache.GetMetadata(listViewEntries.SelectedIndices[0]);
+            lstProperties.Items.Clear();
+            foreach (var key in dict.Keys)
+            {
+                var item = lstProperties.Items.Add(key);
+                item.ImageKey = "information";
+                item.SubItems.Add(dict[key]);
+            }
+        }
+
+
         /// <summary>
         /// Sets the font of a given control, and all child controls, to
         /// the current system font, while preserving font styles.
