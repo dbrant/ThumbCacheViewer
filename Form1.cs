@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 // Thumbnail cache viewer
-// Copyright (c) 2010 Dmitry Brant, all rights reserved
+// Copyright (c) 2018 Dmitry Brant, all rights reserved
 // http://dmitrybrant.com
 // me@dmitrybrant.com
 
@@ -63,13 +63,40 @@ namespace ThumbCacheViewer
             }
             catch { }
         }
-        
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(this, "Thumbnail Cache Viewer\nCopyright 2018 Dmitry Brant.", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var openDlg = new OpenFileDialog();
+            openDlg.DefaultExt = ".lfp";
+            openDlg.CheckFileExists = true;
+            openDlg.Title = "Open thumbnail cache file...";
+            openDlg.Filter = "Thumbnail cache files (*.db)|*.db|All Files (*.*)|*.*";
+            openDlg.FilterIndex = 1;
+            if (openDlg.ShowDialog() == DialogResult.Cancel) return;
+            OpenFile(openDlg.FileName);
+        }
+
         private void lstCacheFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (lstCacheFiles.SelectedItems.Count == 0) return;
+            OpenFile(lstCacheFiles.SelectedItems[0].Text);
+        }
+
+        private void OpenFile(string fileName)
+        {
             try
             {
-                cache = new ThumbCache(lstCacheFiles.SelectedItems[0].Text);
+                cache = new ThumbCache(fileName);
 
                 listView1.LargeImageList = null;
                 int w = 120;
@@ -100,7 +127,6 @@ namespace ThumbCacheViewer
                 MessageBox.Show(this, ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
-
 
         private void listView1_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
@@ -172,8 +198,7 @@ namespace ThumbCacheViewer
                     FixDialogFont(c);
             }
         }
-
-
+        
         [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
         public static extern int SetWindowTheme(IntPtr hWnd, String pszSubAppName, String pszSubIdList);
 
@@ -186,16 +211,5 @@ namespace ThumbCacheViewer
         {
             SetWindowTheme(ctl.Handle, "Explorer", null);
         }
-
-        private void btnAbout_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(this, "Thumbnail Cache Viewer\nCopyright 2018 Dmitry Brant.", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information); 
-        }
-
-        private void btnOK_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
     }
 }
