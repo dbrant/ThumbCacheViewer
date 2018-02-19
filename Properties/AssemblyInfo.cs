@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("ThumbCacheViewer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Defiant Technologies, LLC.")]
 [assembly: AssemblyProduct("ThumbCacheViewer")]
-[assembly: AssemblyCopyright("Copyright © Dmitry Brant 2010")]
+[assembly: AssemblyCopyright("Copyright © Dmitry Brant 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
