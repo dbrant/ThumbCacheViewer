@@ -201,6 +201,53 @@ namespace ThumbCacheViewer
             }
         }
 
+        private void mnuSaveSelected_Click(object sender, EventArgs e)
+        {
+            if (listViewEntries.SelectedIndices.Count == 0)
+            {
+                MessageBox.Show(this, "Please select one or more images to save.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            string selectedPath = "";
+            using (FolderBrowserDialog dlg = new FolderBrowserDialog())
+            {
+                dlg.ShowNewFolderButton = true;
+                dlg.Description = "Select the folder where the images will be saved:";
+                if (dlg.ShowDialog(this) != DialogResult.OK) { return; }
+                selectedPath = dlg.SelectedPath;
+            }
+
+            try
+            {
+                int filesSaved = 0;
+                foreach (int itemIndex in listViewEntries.SelectedIndices)
+                {
+                    Image img = null;
+                    Dictionary<string, string> dict = new Dictionary<string, string>();
+                    try
+                    {
+                        img = cache.GetImage(itemIndex);
+                        dict = cache.GetMetadata(itemIndex);
+                    }
+                    catch { }
+                    if (img == null) continue;
+                    string fileName = "image";
+                    if (dict.ContainsKey("Entry hash"))
+                    {
+                        fileName = dict["Entry hash"];
+                    }
+                    img.Save(selectedPath + Path.DirectorySeparatorChar + fileName + ".bmp");
+                    filesSaved++;
+                }
+                MessageBox.Show(this, "Successfully saved " + filesSaved + " files.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, "Error while saving file: " + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
 
         /// <summary>
         /// Sets the font of a given control, and all child controls, to
