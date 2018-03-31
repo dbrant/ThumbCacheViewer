@@ -46,6 +46,8 @@ namespace ThumbCacheViewer
             {
                 lstCacheFiles.Items.Add(dbFile, "pictures");
             }
+
+            setViewAsThumbs(true);
         }
 
         private void FindDbFiles(string path, ref List<string> dbFiles)
@@ -105,15 +107,15 @@ namespace ThumbCacheViewer
                 {
                     try
                     {
-                        var img = cache.GetImage(i);
-                        w = img.Width;
-                        if (img.Height > w) w = img.Height;
+                        var img = cache.GetImage(i, true);
+                        w = img.image.Width;
+                        if (img.image.Height > w) w = img.image.Height;
                     }
                     catch { }
                 }
 
                 if (w < 32) { w = 32; }
-                if (w > 400) { w = 400; }
+                if (w > 240) { w = 240; }
 
                 w += 16;
 
@@ -140,7 +142,7 @@ namespace ThumbCacheViewer
             Image img = null;
             try
             {
-                img = cache.GetImage(e.ItemIndex);
+                img = cache.GetImage(e.ItemIndex, true).image;
             } catch { }
             if (img == null) return;
 
@@ -155,7 +157,6 @@ namespace ThumbCacheViewer
                 // width >= height
                 if (img.Width > e.Bounds.Width)
                 {
-                    int h = (int)(e.Bounds.Height / aspect);
                     dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, e.Bounds.Width, (int)(e.Bounds.Height / aspect));
                 }
                 else
@@ -168,8 +169,7 @@ namespace ThumbCacheViewer
                 // height > width
                 if (img.Height > e.Bounds.Height)
                 {
-                    int w = (int)(e.Bounds.Width / aspect);
-                    dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, (int)(e.Bounds.Width / aspect), e.Bounds.Height);
+                    dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, (int)(e.Bounds.Width * aspect), e.Bounds.Height);
                 }
                 else
                 {
@@ -183,6 +183,35 @@ namespace ThumbCacheViewer
         private void listView1_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
             e.Item = new ListViewItem();
+            if (listViewEntries.View != View.Details)
+            {
+                return;
+            }
+            e.Item.ImageIndex = 5;
+            ThumbCache.ThumbInfo img = null;
+            try
+            {
+                img = cache.GetImage(e.ItemIndex, false);
+            }
+            catch { }
+            if (img == null)
+            {
+                e.Item.Text = "";
+                e.Item.SubItems.Add("");
+                e.Item.SubItems.Add("");
+                e.Item.SubItems.Add("");
+                e.Item.SubItems.Add("");
+                e.Item.SubItems.Add("");
+                e.Item.SubItems.Add("");
+                return;
+            }
+            e.Item.Text = img.fileOffset.ToString();
+            e.Item.SubItems.Add(img.entrySize.ToString());
+            e.Item.SubItems.Add(img.entryHash.ToString("X16"));
+            e.Item.SubItems.Add(img.fileNameLength.ToString());
+            e.Item.SubItems.Add(img.dataLength.ToString());
+            e.Item.SubItems.Add(img.dataChecksum.ToString("X16"));
+            e.Item.SubItems.Add(img.headerChecksum.ToString("X16"));
         }
 
         private void listViewEntries_SelectedIndexChanged(object sender, EventArgs e)
@@ -191,14 +220,21 @@ namespace ThumbCacheViewer
             {
                 return;
             }
-            var dict = cache.GetMetadata(listViewEntries.SelectedIndices[0]);
             lstProperties.Items.Clear();
-            foreach (var key in dict.Keys)
+            pictureBox1.Image = null;
+            try
             {
-                var item = lstProperties.Items.Add(key);
-                item.ImageKey = "information";
-                item.SubItems.Add(dict[key]);
+                var info = cache.GetImage(listViewEntries.SelectedIndices[0], true);
+                var dict = cache.GetMetadata(info);
+                foreach (var key in dict.Keys)
+                {
+                    var item = lstProperties.Items.Add(key);
+                    item.ImageKey = "information";
+                    item.SubItems.Add(dict[key]);
+                }
+                pictureBox1.Image = info.image;
             }
+            catch { }
         }
 
         private void mnuSaveSelected_Click(object sender, EventArgs e)
@@ -223,21 +259,16 @@ namespace ThumbCacheViewer
                 int filesSaved = 0;
                 foreach (int itemIndex in listViewEntries.SelectedIndices)
                 {
-                    Image img = null;
-                    Dictionary<string, string> dict = new Dictionary<string, string>();
+                    ThumbCache.ThumbInfo img = null;
                     try
                     {
-                        img = cache.GetImage(itemIndex);
-                        dict = cache.GetMetadata(itemIndex);
+                        img = cache.GetImage(itemIndex, true);
                     }
                     catch { }
                     if (img == null) continue;
                     string fileName = "image";
-                    if (dict.ContainsKey("Entry hash"))
-                    {
-                        fileName = dict["Entry hash"];
-                    }
-                    img.Save(selectedPath + Path.DirectorySeparatorChar + fileName + ".bmp");
+                    fileName = img.entryHash.ToString("X16");
+                    img.image.Save(selectedPath + Path.DirectorySeparatorChar + fileName + ".bmp");
                     filesSaved++;
                 }
                 MessageBox.Show(this, "Successfully saved " + filesSaved + " files.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -276,6 +307,26 @@ namespace ThumbCacheViewer
         public static void FixWindowTheme(Control ctl)
         {
             SetWindowTheme(ctl.Handle, "Explorer", null);
+        }
+
+
+
+        private void mnuViewAsThumbs_Click(object sender, EventArgs e)
+        {
+            setViewAsThumbs(true);
+        }
+
+        private void mnuViewAsList_Click(object sender, EventArgs e)
+        {
+            setViewAsThumbs(false);
+        }
+
+        private void setViewAsThumbs(bool thumbs)
+        {
+            mnuViewAsThumbs.Checked = thumbs;
+            mnuViewAsList.Checked = !thumbs;
+            listViewEntries.View = thumbs ? View.LargeIcon : View.Details;
+            listViewEntries.OwnerDraw = thumbs;
         }
     }
 }
