@@ -37,7 +37,7 @@ namespace ThumbCacheViewer
 
         private byte[] tempBytes = new byte[65536];
         private uint[] entryOffsets;
-        
+
         public int ImageCount { get { return entryOffsets.Length; } }
 
         public ThumbCache(string fileName)
@@ -103,89 +103,96 @@ namespace ThumbCacheViewer
 
             entryOffsets = entryOffsetList.ToArray();
         }
-        
-        public Image GetImage(int imageIndex)
+
+        public ThumbInfo GetImage(int imageIndex, bool needImage)
         {
-            Image img = null;
-            if (entryOffsets.Length == 0) return img;
-            if ((imageIndex < 0) || (imageIndex >= entryOffsets.Length)) return img;
-
-            stream.Seek(entryOffsets[imageIndex], SeekOrigin.Begin);
-            stream.Read(tempBytes, 0, 64);
-            string magic = Encoding.ASCII.GetString(tempBytes, 0, 4);
-            if (!magic.Equals("CMMM"))
-                return img;
-            
-            uint entrySize = BitConverter.ToUInt32(tempBytes, 4);
-            uint dataSize = fileVersion == WindowsVista ? BitConverter.ToUInt32(tempBytes, 32) : BitConverter.ToUInt32(tempBytes, 24);
-            
-            if (dataSize == 0) return img;
-
-            stream.Seek(entryOffsets[imageIndex] + entrySize - dataSize, SeekOrigin.Begin);
-
-            if (dataSize > tempBytes.Length)
-                tempBytes = new byte[dataSize];
-
-            stream.Read(tempBytes, 0, (int)dataSize);
-            var mstream = new MemoryStream(tempBytes);
-            img = new Bitmap(mstream);
-            return img;
+            if (entryOffsets.Length == 0) return null;
+            if ((imageIndex < 0) || (imageIndex >= entryOffsets.Length)) return null;
+            return new ThumbInfo(stream, entryOffsets[imageIndex], tempBytes, fileVersion, needImage);
         }
 
-        public Dictionary<string, string> GetMetadata(int imageIndex)
+        public Dictionary<string, string> GetMetadata(ThumbInfo info)
         {
             var dict = new Dictionary<string, string>();
             if (entryOffsets.Length == 0) return dict;
-            if ((imageIndex < 0) || (imageIndex >= entryOffsets.Length)) return dict;
+            if (info == null) return dict;
 
-            stream.Seek(entryOffsets[imageIndex], SeekOrigin.Begin);
-            stream.Read(tempBytes, 0, 64);
-            int bytePtr = 0;
-            string magic = Encoding.ASCII.GetString(tempBytes, bytePtr, 4); bytePtr += 4;
-            if (!magic.Equals("CMMM"))
-                return dict;
-            
-            dict.Add("File offset", entryOffsets[imageIndex].ToString());
-
-            uint entrySize = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
-            dict.Add("Entry size", entrySize.ToString());
-
-            ulong entryHash = BitConverter.ToUInt64(tempBytes, bytePtr); bytePtr += 8;
-            dict.Add("Entry hash", entryHash.ToString("X16"));
-
-            if (fileVersion == WindowsVista)
-            {
-                bytePtr += 8; // wchar x 4
-            }
-
-            uint fileNameLength = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
-            dict.Add("Filename length", fileNameLength.ToString());
-
-            uint paddingLength = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
-            dict.Add("Padding length", paddingLength.ToString());
-
-            uint dataLength = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
-            dict.Add("Data length", dataLength.ToString());
-
-            if (fileVersion >= Windows8)
-            {
-                uint imageWidth = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
-                dict.Add("Image width", imageWidth.ToString());
-
-                uint imageHeight = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
-                dict.Add("Image height", imageHeight.ToString());
-            }
-
-            bytePtr += 4; // unknown
-
-            ulong dataChecksum = BitConverter.ToUInt64(tempBytes, bytePtr); bytePtr += 8;
-            dict.Add("Data checksum", dataChecksum.ToString("X16"));
-
-            ulong headerChecksum = BitConverter.ToUInt64(tempBytes, bytePtr); bytePtr += 8;
-            dict.Add("Header checksum", headerChecksum.ToString("X16"));
-
+            dict.Add("File offset", info.fileOffset.ToString());
+            dict.Add("Entry size", info.entrySize.ToString());
+            dict.Add("Entry hash", info.entryHash.ToString("X16"));
+            dict.Add("Filename length", info.fileNameLength.ToString());
+            dict.Add("Padding length", info.paddingLength.ToString());
+            dict.Add("Data length", info.dataLength.ToString());
+            dict.Add("Image width", info.imageWidth.ToString());
+            dict.Add("Image height", info.imageHeight.ToString());
+            dict.Add("Data checksum", info.dataChecksum.ToString("X16"));
+            dict.Add("Header checksum", info.headerChecksum.ToString("X16"));
             return dict;
         }
-    }
 
+
+        public class ThumbInfo
+        {
+            public Image image;
+            public long fileOffset;
+            public uint entrySize;
+            public ulong entryHash;
+            public uint fileNameLength;
+            public uint paddingLength;
+            public uint dataLength;
+            public ulong dataChecksum;
+            public ulong headerChecksum;
+            public uint imageWidth;
+            public uint imageHeight;
+
+            public ThumbInfo(Stream stream, long offset, byte[] tempBytes, uint fileVersion, bool needImage)
+            {
+                fileOffset = offset;
+                stream.Seek(fileOffset, SeekOrigin.Begin);
+                stream.Read(tempBytes, 0, 64);
+
+                int bytePtr = 0;
+                string magic = Encoding.ASCII.GetString(tempBytes, bytePtr, 4); bytePtr += 4;
+                if (!magic.Equals("CMMM"))
+                    throw new ApplicationException("Incorrect format.");
+
+                entrySize = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
+                entryHash = BitConverter.ToUInt64(tempBytes, bytePtr); bytePtr += 8;
+
+                if (fileVersion == WindowsVista)
+                {
+                    bytePtr += 8; // wchar x 4
+                }
+
+                fileNameLength = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
+                paddingLength = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
+                dataLength = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
+
+                if (fileVersion >= Windows8)
+                {
+                    imageWidth = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
+                    imageHeight = BitConverter.ToUInt32(tempBytes, bytePtr); bytePtr += 4;
+                }
+
+                bytePtr += 4; // unknown
+
+                dataChecksum = BitConverter.ToUInt64(tempBytes, bytePtr); bytePtr += 8;
+                headerChecksum = BitConverter.ToUInt64(tempBytes, bytePtr); bytePtr += 8;
+
+                if (!needImage || dataLength == 0 || dataLength > 0x1000000)
+                    return;
+                
+                stream.Seek(fileOffset + entrySize - dataLength, SeekOrigin.Begin);
+                if (dataLength > tempBytes.Length)
+                    tempBytes = new byte[dataLength];
+
+                stream.Read(tempBytes, 0, (int)dataLength);
+                using (var mstream = new MemoryStream(tempBytes))
+                {
+                    image = new Bitmap(mstream);
+                }
+            }
+
+        }
+    }
 }
