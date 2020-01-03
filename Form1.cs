@@ -69,7 +69,7 @@ namespace ThumbCacheViewer
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "Thumbnail Cache Viewer\nCopyright 2018 Dmitry Brant.", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Thumbnail Cache Viewer\nCopyright 202020 Dmitry Brant.", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)

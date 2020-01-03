@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Defiant Technologies, LLC.")]
 [assembly: AssemblyProduct("ThumbCacheViewer")]
-[assembly: AssemblyCopyright("Copyright © Dmitry Brant 2018")]
+[assembly: AssemblyCopyright("Copyright © Dmitry Brant 2018-2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
