@@ -294,7 +294,7 @@ namespace ThumbCacheViewer
                     item.ImageKey = "information";
                     item.SubItems.Add(dict[key]);
                 }
-                pictureBox1.Image = info.image;
+                pictureBox1.Image = new Bitmap(info.image);
             }
             catch { }
         }
