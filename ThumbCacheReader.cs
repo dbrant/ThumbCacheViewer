@@ -5,8 +5,8 @@ using System.Text;
 using System.Collections.Generic;
 
 // Thumbnail cache decoder
-// Copyright (c) 2018 Dmitry Brant, all rights reserved
-// http://dmitrybrant.com
+// Copyright (c) 2018-2021 Dmitry Brant, all rights reserved
+// https://dmitrybrant.com
 // me@dmitrybrant.com
 
 // This source code is free for personal use.
