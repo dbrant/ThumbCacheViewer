@@ -25,7 +25,7 @@ namespace ThumbCacheViewer
 {
     public partial class Form1 : Form
     {
-        private ThumbCache cache;
+        private ThumbCache db;
 
         private const int MAX_LRU_SIZE = 100;
         private Dictionary<int, ThumbCache.ThumbInfo> thumbInfoMap = new Dictionary<int, ThumbCache.ThumbInfo>();
@@ -91,7 +91,7 @@ namespace ThumbCacheViewer
             }
             if (!thumbInfoMap.ContainsKey(index))
             {
-                var item = cache.GetImage(index, true);
+                var item = db.GetImage(index, true);
                 if (item != null)
                 {
                     thumbInfoMap.Add(index, item);
@@ -121,10 +121,10 @@ namespace ThumbCacheViewer
 
         private void CloseDb()
         {
-            if (cache != null)
+            if (db != null)
             {
-                cache.Dispose();
-                cache = null;
+                db.Dispose();
+                db = null;
             }
         }
 
@@ -162,7 +162,7 @@ namespace ThumbCacheViewer
             {
                 InvalidateCache();
                 CloseDb();
-                cache = new ThumbCache(fileName);
+                db = new ThumbCache(fileName);
 
                 listViewEntries.LargeImageList = null;
                 int w = 120;
@@ -188,7 +188,7 @@ namespace ThumbCacheViewer
                 imageList1.ImageSize = new Size(w, w);
                 listViewEntries.LargeImageList = imageList1;
 
-                listViewEntries.VirtualListSize = cache.ImageCount;
+                listViewEntries.VirtualListSize = db.ImageCount;
                 listViewEntries.Invalidate();
 
                 this.Text = Application.ProductName + " - " + fileName;
@@ -253,7 +253,7 @@ namespace ThumbCacheViewer
             e.Item.ImageIndex = 5;
             try
             {
-                using (var img = cache.GetImage(e.ItemIndex, false))
+                using (var img = db.GetImage(e.ItemIndex, false))
                 {
                     e.Item.Text = img.fileOffset.ToString();
                     e.Item.SubItems.Add(img.entrySize.ToString());
@@ -286,8 +286,8 @@ namespace ThumbCacheViewer
             pictureBox1.Image = null;
             try
             {
-                var info = cache.GetImage(listViewEntries.SelectedIndices[0], true);
-                var dict = cache.GetMetadata(info);
+                var info = GetThumbInfo(listViewEntries.SelectedIndices[0]);
+                var dict = db.GetMetadata(info);
                 foreach (var key in dict.Keys)
                 {
                     var item = lstProperties.Items.Add(key);
@@ -323,7 +323,7 @@ namespace ThumbCacheViewer
                 {
                     try
                     {
-                        var img = cache.GetImage(itemIndex, true);
+                        var img = GetThumbInfo(itemIndex);
                         var fileName = Path.Combine(selectedPath, img.entryHash.ToString("X16") + ".png");
                         using (var bmp = new Bitmap(img.image))
                         {
