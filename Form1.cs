@@ -107,6 +107,7 @@ namespace ThumbCacheViewer
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             InvalidateCache();
+            CloseDb();
         }
 
         private void InvalidateCache()
@@ -116,6 +117,15 @@ namespace ThumbCacheViewer
                 value.Dispose();
             }
             thumbInfoMap.Clear();
+        }
+
+        private void CloseDb()
+        {
+            if (cache != null)
+            {
+                cache.Dispose();
+                cache = null;
+            }
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -151,6 +161,7 @@ namespace ThumbCacheViewer
             try
             {
                 InvalidateCache();
+                CloseDb();
                 cache = new ThumbCache(fileName);
 
                 listViewEntries.LargeImageList = null;
