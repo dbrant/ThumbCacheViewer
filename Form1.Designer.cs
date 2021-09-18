@@ -296,32 +296,35 @@
             // 
             this.openToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.openToolStripMenuItem.Text = "Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(191, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(231, 6);
             // 
             // mnuSaveSelected
             // 
             this.mnuSaveSelected.Image = ((System.Drawing.Image)(resources.GetObject("mnuSaveSelected.Image")));
             this.mnuSaveSelected.Name = "mnuSaveSelected";
-            this.mnuSaveSelected.Size = new System.Drawing.Size(194, 22);
+            this.mnuSaveSelected.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.mnuSaveSelected.Size = new System.Drawing.Size(234, 22);
             this.mnuSaveSelected.Text = "Save selected images...";
             this.mnuSaveSelected.Click += new System.EventHandler(this.mnuSaveSelected_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(191, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(231, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -339,14 +342,14 @@
             this.mnuViewAsThumbs.Checked = true;
             this.mnuViewAsThumbs.CheckState = System.Windows.Forms.CheckState.Checked;
             this.mnuViewAsThumbs.Name = "mnuViewAsThumbs";
-            this.mnuViewAsThumbs.Size = new System.Drawing.Size(150, 22);
+            this.mnuViewAsThumbs.Size = new System.Drawing.Size(180, 22);
             this.mnuViewAsThumbs.Text = "As thumbnails";
             this.mnuViewAsThumbs.Click += new System.EventHandler(this.mnuViewAsThumbs_Click);
             // 
             // mnuViewAsList
             // 
             this.mnuViewAsList.Name = "mnuViewAsList";
-            this.mnuViewAsList.Size = new System.Drawing.Size(150, 22);
+            this.mnuViewAsList.Size = new System.Drawing.Size(180, 22);
             this.mnuViewAsList.Text = "As list";
             this.mnuViewAsList.Click += new System.EventHandler(this.mnuViewAsList_Click);
             // 
@@ -361,7 +364,8 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
