@@ -25,7 +25,11 @@ namespace ThumbCacheViewer
 {
     public partial class Form1 : Form
     {
-        ThumbCache cache;
+        private ThumbCache cache;
+
+        private const int MAX_LRU_SIZE = 100;
+        private Dictionary<int, ThumbCache.ThumbInfo> thumbInfoMap = new Dictionary<int, ThumbCache.ThumbInfo>();
+        private List<int> lruIndices = new List<int>();
 
         public Form1()
         {
@@ -68,6 +72,52 @@ namespace ThumbCacheViewer
             catch { }
         }
 
+        private ThumbCache.ThumbInfo GetThumbInfo(int index)
+        {
+            if (lruIndices.Contains(index))
+            {
+                lruIndices.Remove(index);
+            }
+            lruIndices.Add(index);
+            if (lruIndices.Count > MAX_LRU_SIZE)
+            {
+                int indexToEvict = lruIndices[0];
+                lruIndices.RemoveAt(0);
+                if (thumbInfoMap.ContainsKey(indexToEvict))
+                {
+                    thumbInfoMap[indexToEvict].Dispose();
+                    thumbInfoMap.Remove(indexToEvict);
+                }
+            }
+            if (!thumbInfoMap.ContainsKey(index))
+            {
+                var item = cache.GetImage(index, true);
+                if (item != null)
+                {
+                    thumbInfoMap.Add(index, item);
+                }
+                return item;
+            }
+            else
+            {
+                return thumbInfoMap[index];
+            }
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            InvalidateCache();
+        }
+
+        private void InvalidateCache()
+        {
+            foreach (var value in thumbInfoMap.Values)
+            {
+                value.Dispose();
+            }
+            thumbInfoMap.Clear();
+        }
+
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show(this, "Thumbnail Cache Viewer\nCopyright 2021 Dmitry Brant.", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -100,6 +150,7 @@ namespace ThumbCacheViewer
         {
             try
             {
+                InvalidateCache();
                 cache = new ThumbCache(fileName);
 
                 listViewEntries.LargeImageList = null;
@@ -108,13 +159,11 @@ namespace ThumbCacheViewer
                 {
                     try
                     {
-                        using (var img = cache.GetImage(i, true))
+                        var img = GetThumbInfo(i);
+                        if (img != null && img.image != null)
                         {
-                            if (img.image != null)
-                            {
-                                w = img.image.Width;
-                                if (img.image.Height > w) w = img.image.Height;
-                            }
+                            w = img.image.Width;
+                            if (img.image.Height > w) w = img.image.Height;
                         }
                     }
                     catch { }
@@ -144,44 +193,43 @@ namespace ThumbCacheViewer
             e.DrawDefault = true;
             try
             {
-                using (var img = cache.GetImage(e.ItemIndex, true))
+                var img = GetThumbInfo(e.ItemIndex);
+                if (img.image == null) { return; }
+
+                float aspect = (float)img.image.Width / (float)img.image.Height;
+                if (aspect == 0f) { aspect = 1f; }
+                Rectangle src = new Rectangle(0, 0, img.image.Width, img.image.Height);
+                Rectangle dst;
+
+
+                if (aspect >= 1f)
                 {
-                    if (img.image == null) { return; }
-
-                    float aspect = (float)img.image.Width / (float)img.image.Height;
-                    if (aspect == 0f) { aspect = 1f; }
-                    Rectangle src = new Rectangle(0, 0, img.image.Width, img.image.Height);
-                    Rectangle dst;
-
-
-                    if (aspect >= 1f)
+                    // width >= height
+                    if (img.image.Width > e.Bounds.Width)
                     {
-                        // width >= height
-                        if (img.image.Width > e.Bounds.Width)
-                        {
-                            dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, e.Bounds.Width, (int)(e.Bounds.Height / aspect));
-                        }
-                        else
-                        {
-                            dst = new Rectangle(e.Bounds.Left + e.Bounds.Width / 2 - img.image.Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - img.image.Height / 2, img.image.Width, img.image.Height);
-                        }
+                        dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, e.Bounds.Width, (int)(e.Bounds.Height / aspect));
                     }
                     else
                     {
-                        // height > width
-                        if (img.image.Height > e.Bounds.Height)
-                        {
-                            dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, (int)(e.Bounds.Width * aspect), e.Bounds.Height);
-                        }
-                        else
-                        {
-                            dst = new Rectangle(e.Bounds.Left + e.Bounds.Width / 2 - img.image.Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - img.image.Height / 2, img.image.Width, img.image.Height);
-                        }
+                        dst = new Rectangle(e.Bounds.Left + e.Bounds.Width / 2 - img.image.Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - img.image.Height / 2, img.image.Width, img.image.Height);
                     }
-
-                    e.Graphics.DrawImage(img.image, dst, src, GraphicsUnit.Pixel);
                 }
-            } catch { }
+                else
+                {
+                    // height > width
+                    if (img.image.Height > e.Bounds.Height)
+                    {
+                        dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, (int)(e.Bounds.Width * aspect), e.Bounds.Height);
+                    }
+                    else
+                    {
+                        dst = new Rectangle(e.Bounds.Left + e.Bounds.Width / 2 - img.image.Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - img.image.Height / 2, img.image.Width, img.image.Height);
+                    }
+                }
+
+                e.Graphics.DrawImage(img.image, dst, src, GraphicsUnit.Pixel);
+            }
+            catch { }
         }
 
         private void listView1_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
@@ -264,15 +312,13 @@ namespace ThumbCacheViewer
                 {
                     try
                     {
-                        using (var img = cache.GetImage(itemIndex, true))
+                        var img = cache.GetImage(itemIndex, true);
+                        var fileName = Path.Combine(selectedPath, img.entryHash.ToString("X16") + ".png");
+                        using (var bmp = new Bitmap(img.image))
                         {
-                            var fileName = Path.Combine(selectedPath, img.entryHash.ToString("X16") + ".png");
-                            using (var bmp = new Bitmap(img.image))
-                            {
-                                bmp.Save(fileName, ImageFormat.Png);
-                            }
-                            filesSaved++;
+                            bmp.Save(fileName, ImageFormat.Png);
                         }
+                        filesSaved++;
                     }
                     catch { }
                 }
