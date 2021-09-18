@@ -21,9 +21,8 @@ using System.Collections.Generic;
 
 namespace ThumbCacheViewer
 {
-    public class ThumbCache
+    public class ThumbCache : IDisposable
     {
-
         private const int WindowsVista = 0x14;
         private const int Windows7 = 0x15;
         private const int Windows8 = 0x1A;
@@ -51,9 +50,10 @@ namespace ThumbCacheViewer
             ReadFromStream(stream);
         }
 
-        ~ThumbCache()
+        public void Dispose()
         {
-            stream.Close();
+            stream.Dispose();
+            
         }
 
         private void ReadFromStream(Stream stream)
@@ -131,7 +131,7 @@ namespace ThumbCacheViewer
         }
 
 
-        public class ThumbInfo
+        public class ThumbInfo : IDisposable
         {
             public Image image;
             public long fileOffset;
@@ -193,6 +193,13 @@ namespace ThumbCacheViewer
                 }
             }
 
+            public void Dispose()
+            {
+                if (image != null)
+                {
+                    try { image.Dispose(); } catch { }
+                }
+            }
         }
     }
 }

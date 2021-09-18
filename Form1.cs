@@ -136,49 +136,45 @@ namespace ThumbCacheViewer
 
         private void listView1_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
-            //e.DrawBackground();
             e.DrawDefault = true;
-            //e.DrawText();
-
-            Image img = null;
             try
             {
-                img = cache.GetImage(e.ItemIndex, true).image;
+                using (var img = cache.GetImage(e.ItemIndex, true))
+                {
+                    float aspect = (float)img.image.Width / (float)img.image.Height;
+                    if (aspect == 0f) { aspect = 1f; }
+                    Rectangle src = new Rectangle(0, 0, img.image.Width, img.image.Height);
+                    Rectangle dst;
+
+
+                    if (aspect >= 1f)
+                    {
+                        // width >= height
+                        if (img.image.Width > e.Bounds.Width)
+                        {
+                            dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, e.Bounds.Width, (int)(e.Bounds.Height / aspect));
+                        }
+                        else
+                        {
+                            dst = new Rectangle(e.Bounds.Left + e.Bounds.Width / 2 - img.image.Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - img.image.Height / 2, img.image.Width, img.image.Height);
+                        }
+                    }
+                    else
+                    {
+                        // height > width
+                        if (img.image.Height > e.Bounds.Height)
+                        {
+                            dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, (int)(e.Bounds.Width * aspect), e.Bounds.Height);
+                        }
+                        else
+                        {
+                            dst = new Rectangle(e.Bounds.Left + e.Bounds.Width / 2 - img.image.Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - img.image.Height / 2, img.image.Width, img.image.Height);
+                        }
+                    }
+
+                    e.Graphics.DrawImage(img.image, dst, src, GraphicsUnit.Pixel);
+                }
             } catch { }
-            if (img == null) return;
-
-            float aspect = (float)img.Width / (float)img.Height;
-            if (aspect == 0f) { aspect = 1f; }
-            Rectangle src = new Rectangle(0, 0, img.Width, img.Height);
-            Rectangle dst;
-
-
-            if (aspect >= 1f)
-            {
-                // width >= height
-                if (img.Width > e.Bounds.Width)
-                {
-                    dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, e.Bounds.Width, (int)(e.Bounds.Height / aspect));
-                }
-                else
-                {
-                    dst = new Rectangle(e.Bounds.Left + e.Bounds.Width / 2 - img.Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - img.Height / 2, img.Width, img.Height);
-                }
-            }
-            else
-            {
-                // height > width
-                if (img.Height > e.Bounds.Height)
-                {
-                    dst = new Rectangle(e.Bounds.Left, e.Bounds.Top, (int)(e.Bounds.Width * aspect), e.Bounds.Height);
-                }
-                else
-                {
-                    dst = new Rectangle(e.Bounds.Left + e.Bounds.Width / 2 - img.Width / 2, e.Bounds.Top + e.Bounds.Height / 2 - img.Height / 2, img.Width, img.Height);
-                }
-            }
-            
-            e.Graphics.DrawImage(img, dst, src, GraphicsUnit.Pixel);
         }
 
         private void listView1_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
@@ -189,13 +185,20 @@ namespace ThumbCacheViewer
                 return;
             }
             e.Item.ImageIndex = 5;
-            ThumbCache.ThumbInfo img = null;
             try
             {
-                img = cache.GetImage(e.ItemIndex, false);
+                using (var img = cache.GetImage(e.ItemIndex, false))
+                {
+                    e.Item.Text = img.fileOffset.ToString();
+                    e.Item.SubItems.Add(img.entrySize.ToString());
+                    e.Item.SubItems.Add(img.entryHash.ToString("X16"));
+                    e.Item.SubItems.Add(img.fileNameLength.ToString());
+                    e.Item.SubItems.Add(img.dataLength.ToString());
+                    e.Item.SubItems.Add(img.dataChecksum.ToString("X16"));
+                    e.Item.SubItems.Add(img.headerChecksum.ToString("X16"));
+                }
             }
-            catch { }
-            if (img == null)
+            catch
             {
                 e.Item.Text = "";
                 e.Item.SubItems.Add("");
@@ -204,15 +207,7 @@ namespace ThumbCacheViewer
                 e.Item.SubItems.Add("");
                 e.Item.SubItems.Add("");
                 e.Item.SubItems.Add("");
-                return;
             }
-            e.Item.Text = img.fileOffset.ToString();
-            e.Item.SubItems.Add(img.entrySize.ToString());
-            e.Item.SubItems.Add(img.entryHash.ToString("X16"));
-            e.Item.SubItems.Add(img.fileNameLength.ToString());
-            e.Item.SubItems.Add(img.dataLength.ToString());
-            e.Item.SubItems.Add(img.dataChecksum.ToString("X16"));
-            e.Item.SubItems.Add(img.headerChecksum.ToString("X16"));
         }
 
         private void listViewEntries_SelectedIndexChanged(object sender, EventArgs e)
@@ -260,20 +255,19 @@ namespace ThumbCacheViewer
                 int filesSaved = 0;
                 foreach (int itemIndex in listViewEntries.SelectedIndices)
                 {
-                    ThumbCache.ThumbInfo img = null;
                     try
                     {
-                        img = cache.GetImage(itemIndex, true);
+                        using (var img = cache.GetImage(itemIndex, true))
+                        {
+                            var fileName = Path.Combine(selectedPath, img.entryHash.ToString("X16") + ".png");
+                            using (var bmp = new Bitmap(img.image))
+                            {
+                                bmp.Save(fileName, ImageFormat.Png);
+                            }
+                            filesSaved++;
+                        }
                     }
                     catch { }
-                    if (img == null) continue;
-
-                    var fileName = Path.Combine(selectedPath, img.entryHash.ToString("X16") + ".png");
-                    using (var bmp = new Bitmap(img.image))
-                    {
-                        bmp.Save(fileName, ImageFormat.Png);
-                    }
-                    filesSaved++;
                 }
                 MessageBox.Show(this, "Successfully saved " + filesSaved + " file(s).", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
