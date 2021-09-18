@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -266,12 +267,15 @@ namespace ThumbCacheViewer
                     }
                     catch { }
                     if (img == null) continue;
-                    string fileName = "image";
-                    fileName = img.entryHash.ToString("X16");
-                    img.image.Save(selectedPath + Path.DirectorySeparatorChar + fileName + ".bmp");
+
+                    var fileName = Path.Combine(selectedPath, img.entryHash.ToString("X16") + ".png");
+                    using (var bmp = new Bitmap(img.image))
+                    {
+                        bmp.Save(fileName, ImageFormat.Png);
+                    }
                     filesSaved++;
                 }
-                MessageBox.Show(this, "Successfully saved " + filesSaved + " files.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, "Successfully saved " + filesSaved + " file(s).", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
