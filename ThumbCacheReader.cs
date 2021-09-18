@@ -187,9 +187,16 @@ namespace ThumbCacheViewer
                     tempBytes = new byte[dataLength];
 
                 stream.Read(tempBytes, 0, (int)dataLength);
-                using (var mstream = new MemoryStream(tempBytes))
+
+                // Only bother decoding the image if it matches these formats.
+                if (((tempBytes[0] == 0x42) && (tempBytes[1] == 0x4D)) // BMP
+                    || ((tempBytes[0] == 0xFF) && (tempBytes[1] == 0xD8)) // JPG
+                    || ((tempBytes[0] == 0x89) && (tempBytes[1] == 0x50))) // PNG
                 {
-                    image = new Bitmap(mstream);
+                    using (var mstream = new MemoryStream(tempBytes))
+                    {
+                        image = new Bitmap(mstream);
+                    }
                 }
             }
 

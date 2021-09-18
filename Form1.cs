@@ -108,9 +108,14 @@ namespace ThumbCacheViewer
                 {
                     try
                     {
-                        var img = cache.GetImage(i, true);
-                        w = img.image.Width;
-                        if (img.image.Height > w) w = img.image.Height;
+                        using (var img = cache.GetImage(i, true))
+                        {
+                            if (img.image != null)
+                            {
+                                w = img.image.Width;
+                                if (img.image.Height > w) w = img.image.Height;
+                            }
+                        }
                     }
                     catch { }
                 }
@@ -141,6 +146,8 @@ namespace ThumbCacheViewer
             {
                 using (var img = cache.GetImage(e.ItemIndex, true))
                 {
+                    if (img.image == null) { return; }
+
                     float aspect = (float)img.image.Width / (float)img.image.Height;
                     if (aspect == 0f) { aspect = 1f; }
                     Rectangle src = new Rectangle(0, 0, img.image.Width, img.image.Height);
