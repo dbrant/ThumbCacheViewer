@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 // Thumbnail cache viewer
-// Copyright (c) 2018-2021 Dmitry Brant, all rights reserved
+// Copyright (c) 2018-2023 Dmitry Brant, all rights reserved
 // https://dmitrybrant.com
 // me@dmitrybrant.com
 
@@ -130,7 +130,7 @@ namespace ThumbCacheViewer
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "Thumbnail Cache Viewer\nCopyright 2021 Dmitry Brant.", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Thumbnail Cache Viewer\nCopyright (c) Dmitry Brant.", "About...", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
