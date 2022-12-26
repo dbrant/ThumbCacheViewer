@@ -117,16 +117,16 @@ namespace ThumbCacheViewer
             if (entryOffsets.Length == 0) return dict;
             if (info == null) return dict;
 
-            dict.Add("File offset", info.fileOffset.ToString());
-            dict.Add("Entry size", info.entrySize.ToString());
-            dict.Add("Entry hash", info.entryHash.ToString("X16"));
+            dict.Add("File offset", info.fileOffset.ToString() + " (0x" + info.fileOffset.ToString("X") + ")");
+            dict.Add("Entry size", info.entrySize.ToString() + " (0x" + info.entrySize.ToString("X") + ")");
+            dict.Add("Entry hash", "0x" + info.entryHash.ToString("X16"));
             dict.Add("Filename length", info.fileNameLength.ToString());
             dict.Add("Padding length", info.paddingLength.ToString());
-            dict.Add("Data length", info.dataLength.ToString());
+            dict.Add("Data length", info.dataLength.ToString() + " (0x" + info.dataLength.ToString("X") + ")");
             dict.Add("Image width", info.imageWidth.ToString());
             dict.Add("Image height", info.imageHeight.ToString());
-            dict.Add("Data checksum", info.dataChecksum.ToString("X16"));
-            dict.Add("Header checksum", info.headerChecksum.ToString("X16"));
+            dict.Add("Data checksum", "0x" + info.dataChecksum.ToString("X16"));
+            dict.Add("Header checksum", "0x" + info.headerChecksum.ToString("X16"));
             return dict;
         }
 
