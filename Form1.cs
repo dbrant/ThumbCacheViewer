@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 // Thumbnail cache viewer
-// Copyright (c) 2018-2023 Dmitry Brant, all rights reserved
+// Copyright (c) 2018+ Dmitry Brant, all rights reserved
 // https://dmitrybrant.com
 // me@dmitrybrant.com
 
